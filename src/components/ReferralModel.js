@@ -10,7 +10,7 @@ function ReferralModal({ isOpen, onClose }) {
     course: ''
   });
 
-  const [onclose, setOnClose] = useState("false")
+
 
   const [errors, setErrors] = useState({});
 
