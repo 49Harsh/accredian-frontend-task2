@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+
+
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 function ReferralModal({ isOpen, onClose }) {
@@ -10,13 +12,22 @@ function ReferralModal({ isOpen, onClose }) {
     course: ''
   });
 
-
-
   const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // initial loading
+    setTimeout(() => setIsLoading(false), 2000);
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+  
+  const mainCloseHandler =() =>{
+    onClose();
+  }
 
   const validateForm = () => {
     const newErrors = {};
@@ -32,6 +43,7 @@ function ReferralModal({ isOpen, onClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
+      setIsSubmitting(true);
       try {
         await axios.post('https://node-mysql-apiii-fs2t.onrender.com/api/referrals', formData);
         onClose();
@@ -39,17 +51,34 @@ function ReferralModal({ isOpen, onClose }) {
       } catch (error) {
         console.error('Error submitting referral:', error);
         alert('Error submitting referral. Please try again.');
+      } finally {
+        setIsSubmitting(false);
       }
     }
   };
 
   if (!isOpen) return null;
 
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
+        <div className="bg-white p-5 rounded-md">
+          <p>Please wait, it's taking a few time...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
-      <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+    <div  className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+      <div  className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
         <div className="mt-3 text-center">
-          <h3 className="text-lg leading-6 font-medium text-gray-900">Referral Form</h3>
+          <div className='flex flex-row justify-between'>
+            <h3 className="text-lg leading-6 font-medium text-gray-700">Referral Form</h3>
+            <div onClick={mainCloseHandler} >
+              <svg width="40" height="40" viewbox="0 0 40 40"><path d="M 10,10 L 30,30 M 30,10 L 10,30" stroke="gray" stroke-width="4" /></svg>
+            </div>
+          </div>
           <form onSubmit={handleSubmit} className="mt-2">
             <input
               type="text"
@@ -95,8 +124,9 @@ function ReferralModal({ isOpen, onClose }) {
               <button
                 type="submit"
                 className="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                disabled={isSubmitting}
               >
-                Submit Referral
+                {isSubmitting ? 'Submitting...' : 'Submit Referral'}
               </button>
             </div>
           </form>
