@@ -33,7 +33,7 @@ function ReferralModal({ isOpen, onClose }) {
     e.preventDefault();
     if (validateForm()) {
       try {
-        await axios.post('http://localhost:3001/api/referrals', formData);
+        await axios.post('https://node-mysql-apiii-fs2t.onrender.com/api/referrals', formData);
         onClose();
         alert('Referral submitted successfully!');
       } catch (error) {
